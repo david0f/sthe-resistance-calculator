@@ -221,33 +221,59 @@ class MyTextInputState extends State<MyTextInput> {
         appBar: new AppBar(
             title: new Text("Resistance Calculator"),
             backgroundColor: Colors.deepOrange),
-        body: new Container(
-            child: new Padding(
-                padding: EdgeInsets.all(24.0),
-                child: new Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    new Container(
-                        child: new Center(
-                      child: Image(
-                        image: new AssetImage('assets/heating_element.png'),
-                        width: 120,
+        body: SingleChildScrollView(
+                  child: new Container(
+              child: new Padding(
+                  padding: EdgeInsets.all(24.0),
+                  child: new Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      new Container(
+                          child: new Center(
+                        child: Image(
+                          image: new AssetImage('assets/heating_element.png'),
+                          width: 120,
+                        ),
+                      )),
+                      new Text(
+                        'Please complete the following fields:',
+                        style: TextStyle(
+                            fontFamily: "Montserrat",
+                            fontWeight: FontWeight.w300,
+                            fontSize: 14),
                       ),
-                    )),
-                    new Text(
-                      'Please complete the following fields:',
-                      style: TextStyle(
-                          fontFamily: "Montserrat",
-                          fontWeight: FontWeight.w300,
-                          fontSize: 14),
-                    ),
-                    new SizedBox(height: 16),
-                    new Row(
-                      children: <Widget>[
-                        new Expanded(
-                            child: new Padding(
-                                padding: EdgeInsets.all(2),
-                                child: TextField(
+                      new SizedBox(height: 16),
+                      new Row(
+                        children: <Widget>[
+                          new Expanded(
+                              child: new Padding(
+                                  padding: EdgeInsets.all(2),
+                                  child: TextField(
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w300,
+                                          fontFamily: "Poppins",
+                                          height: 1),
+                                      decoration: new InputDecoration(
+                                          labelText: "Power [W]",
+                                          contentPadding: EdgeInsets.symmetric(
+                                              vertical: 12, horizontal: 10),
+                                          border: new OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8)),
+                                          hasFloatingPlaceholder: true),
+                                      keyboardType: TextInputType.number,
+                                      controller: _powerController,
+                                      onChanged: (String str) {
+                                        setState(() {
+                                          calculate();
+                                        });
+                                      }))),
+                          new Expanded(
+                              child: new Padding(
+                                  padding: EdgeInsets.all(2),
+                                  child: TextField(
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                         fontSize: 14,
@@ -255,104 +281,125 @@ class MyTextInputState extends State<MyTextInput> {
                                         fontFamily: "Poppins",
                                         height: 1),
                                     decoration: new InputDecoration(
-                                        labelText: "Power [W]",
                                         contentPadding: EdgeInsets.symmetric(
                                             vertical: 12, horizontal: 10),
+                                        labelText: "Voltage [V]",
                                         border: new OutlineInputBorder(
                                             borderRadius:
-                                                BorderRadius.circular(8)),
+                                                BorderRadius.circular(6)),
                                         hasFloatingPlaceholder: true),
+                                    enabled: true,
                                     keyboardType: TextInputType.number,
-                                    controller: _powerController,
+                                    controller: _voltageController,
                                     onChanged: (String str) {
                                       setState(() {
                                         calculate();
                                       });
-                                    }))),
-                        new Expanded(
+                                    },
+                                  ))),
+                          new Expanded(
+                              child: new Padding(
+                                  padding: EdgeInsets.all(2),
+                                  child: TextField(
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w300,
+                                          fontFamily: "Poppins",
+                                          height: 1),
+                                      decoration: new InputDecoration(
+                                          labelText: "Channel [mm]",
+                                          contentPadding: EdgeInsets.symmetric(
+                                              vertical: 12, horizontal: 10),
+                                          border: new OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8)),
+                                          hasFloatingPlaceholder: true),
+                                      keyboardType: TextInputType.number,
+                                      controller: _channelController,
+                                      onChanged: (String str) {
+                                        setState(() {
+                                          calcStep();
+                                        });
+                                      }))),
+                        ],
+                      ),
+                      new SizedBox(height: 16),
+                      new Row(
+                        children: <Widget>[
+                          new Expanded(
+                              flex: 4,
+                              child: new DropdownButton<String>(
+                                style: new TextStyle(),
+                                value: desiredDiameterResistance,
+                                icon: new Icon(Icons.arrow_right),
+                                onChanged: (String newValue) {
+                                  setState(() {
+                                    desiredDiameterResistance = newValue;
+                                  });
+                                },
+                                items: _diameterResitanceList
+                                    .map((data) => DropdownMenuItem<String>(
+                                          child: Text(
+                                              "\u2300 Wire: " +
+                                                  data.diameter.toString() +
+                                                  " mm",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w300,
+                                                color: Colors.black,
+                                                fontSize: 14,
+                                              )),
+                                          value: data.resistance.toString(),
+                                        ))
+                                    .toList(),
+                                hint: new Center(
+                                    child: Text("\u2300 Wire",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w300,
+                                          color: Colors.black,
+                                          fontSize: 14,
+                                        ))),
+                                isExpanded: true,
+                                isDense: true,
+                              )),
+                          new Expanded(
+                            flex: 1,
                             child: new Padding(
-                                padding: EdgeInsets.all(2),
-                                child: TextField(
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w300,
-                                      fontFamily: "Poppins",
-                                      height: 1),
-                                  decoration: new InputDecoration(
-                                      contentPadding: EdgeInsets.symmetric(
-                                          vertical: 12, horizontal: 10),
-                                      labelText: "Voltage [V]",
-                                      border: new OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(6)),
-                                      hasFloatingPlaceholder: true),
-                                  enabled: true,
-                                  keyboardType: TextInputType.number,
-                                  controller: _voltageController,
-                                  onChanged: (String str) {
-                                    setState(() {
-                                      calculate();
-                                    });
-                                  },
-                                ))),
-                        new Expanded(
-                            child: new Padding(
-                                padding: EdgeInsets.all(2),
-                                child: TextField(
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w300,
-                                        fontFamily: "Poppins",
-                                        height: 1),
-                                    decoration: new InputDecoration(
-                                        labelText: "Channel [mm]",
-                                        contentPadding: EdgeInsets.symmetric(
-                                            vertical: 12, horizontal: 10),
-                                        border: new OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(8)),
-                                        hasFloatingPlaceholder: true),
-                                    keyboardType: TextInputType.number,
-                                    controller: _channelController,
-                                    onChanged: (String str) {
-                                      setState(() {
-                                        calcStep();
-                                      });
-                                    }))),
-                      ],
-                    ),
-                    new SizedBox(height: 16),
-                    new Row(
-                      children: <Widget>[
-                        new Expanded(
+                                padding: EdgeInsets.symmetric(horizontal: 6),
+                                child: new SizedBox(
+                                    width: 100,
+                                    height: 0.3,
+                                    child: DecoratedBox(
+                                      decoration:
+                                          BoxDecoration(color: Colors.deepOrange),
+                                    ))),
+                          ),
+                          new Expanded(
                             flex: 4,
                             child: new DropdownButton<String>(
-                              style: new TextStyle(),
-                              value: desiredDiameterResistance,
+                              value: desiredPhiDorn,
                               icon: new Icon(Icons.arrow_right),
                               onChanged: (String newValue) {
                                 setState(() {
-                                  desiredDiameterResistance = newValue;
+                                  desiredPhiDorn = newValue;
                                 });
                               },
-                              items: _diameterResitanceList
+                              items: new List<int>.generate(10, (i) => i + 1)
                                   .map((data) => DropdownMenuItem<String>(
                                         child: Text(
-                                            "\u2300 Wire: " +
-                                                data.diameter.toString() +
+                                            "\u03C6 dorn: " +
+                                                data.toString() +
                                                 " mm",
                                             style: TextStyle(
                                               fontWeight: FontWeight.w300,
                                               color: Colors.black,
                                               fontSize: 14,
                                             )),
-                                        value: data.resistance.toString(),
+                                        value: data.toString(),
                                       ))
                                   .toList(),
                               hint: new Center(
-                                  child: Text("\u2300 Wire",
+                                  child: Text("\u03C6 dorn",
                                       style: TextStyle(
                                         fontWeight: FontWeight.w300,
                                         color: Colors.black,
@@ -360,150 +407,105 @@ class MyTextInputState extends State<MyTextInput> {
                                       ))),
                               isExpanded: true,
                               isDense: true,
-                            )),
-                        new Expanded(
-                          flex: 1,
-                          child: new Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 6),
-                              child: new SizedBox(
-                                  width: 100,
-                                  height: 0.3,
-                                  child: DecoratedBox(
-                                    decoration:
-                                        BoxDecoration(color: Colors.deepOrange),
-                                  ))),
-                        ),
-                        new Expanded(
-                          flex: 4,
-                          child: new DropdownButton<String>(
-                            value: desiredPhiDorn,
-                            icon: new Icon(Icons.arrow_right),
-                            onChanged: (String newValue) {
-                              setState(() {
-                                desiredPhiDorn = newValue;
-                              });
-                            },
-                            items: new List<int>.generate(10, (i) => i + 1)
-                                .map((data) => DropdownMenuItem<String>(
-                                      child: Text(
-                                          "\u03C6 dorn: " +
-                                              data.toString() +
-                                              " mm",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w300,
-                                            color: Colors.black,
-                                            fontSize: 14,
-                                          )),
-                                      value: data.toString(),
-                                    ))
-                                .toList(),
-                            hint: new Center(
-                                child: Text("\u03C6 dorn",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w300,
-                                      color: Colors.black,
-                                      fontSize: 14,
-                                    ))),
-                            isExpanded: true,
-                            isDense: true,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    new Divider(
-                      height: 42,
-                      indent: 10,
-                      color: Colors.deepOrange,
-                      endIndent: 10,
-                    ),
-                    new Row(
-                      children: <Widget>[
-                        new Expanded(
-                            flex: 3,
-                            child: new SizedBox(
-                              child: new Text(
-                                resistanceText,
-                                style: TextStyle(
-                                    fontFamily: "Montserrat",
-                                    fontWeight: FontWeight.w300,
-                                    fontSize: 12),
-                              ),
-                            )),
-                      ],
-                    ),
-                    new SizedBox(
-                      height: 8,
-                    ),
-                    new Row(
-                      children: <Widget>[
-                        new Expanded(
-                            flex: 3,
-                            child: new SizedBox(
-                              child: new Text(
-                                calculateWireLength().toString(),
-                                style: TextStyle(
-                                    fontFamily: "Montserrat",
-                                    fontWeight: FontWeight.w300,
-                                    fontSize: 12),
-                              ),
-                            )),
-                      ],
-                    ),
-                    new SizedBox(
-                      height: 8,
-                    ),
-                    new Text(
-                      (calcSpireLength()),
-                      style:
-                          TextStyle(fontSize: 12, fontWeight: FontWeight.w300),
-                    ),
-                    new SizedBox(
-                      height: 8,
-                    ),
-                    new Text((calcNumOfSpires()),
-                        style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.w300)),
-                    new SizedBox(
-                      height: 8,
-                    ),
-                    new Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        new Text((calcNumOfCoils()),
-                            style: TextStyle(
-                                fontSize: 12, fontWeight: FontWeight.w300)),
-                        new Text(calcRoundedNumOfCoils(),
-                            style: TextStyle(
-                                fontSize: 12, fontWeight: FontWeight.w300))
-                      ],
-                    ),
-                    new SizedBox(
-                      height: 8,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        new Text(calcStep(),
-                            style: TextStyle(
-                                fontSize: 12, fontWeight: FontWeight.w300)),
-                        new Text(calcStepAndDiameter(),
-                            style: TextStyle(
-                                fontSize: 12, fontWeight: FontWeight.w300)),
-                      ],
-                    ),
-                    new SizedBox(
-                      height: 8,
-                    ),
-                    new Text(calcSurfaceLoad(),
-                        style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.w300)),
-                    new SizedBox(
-                      height: 8,
-                    ),
-                    new Text(calcResPrice(),
-                        style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.w300)),
-                  ],
-                ))));
+                        ],
+                      ),
+                      new Divider(
+                        height: 42,
+                        indent: 10,
+                        color: Colors.deepOrange,
+                        endIndent: 10,
+                      ),
+                      new Row(
+                        children: <Widget>[
+                          new Expanded(
+                              flex: 3,
+                              child: new SizedBox(
+                                child: new Text(
+                                  resistanceText,
+                                  style: TextStyle(
+                                      fontFamily: "Montserrat",
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: 18),
+                                ),
+                              )),
+                        ],
+                      ),
+                      new SizedBox(
+                        height: 8,
+                      ),
+                      new Row(
+                        children: <Widget>[
+                          new Expanded(
+                              flex: 3,
+                              child: new SizedBox(
+                                child: new Text(
+                                  calculateWireLength().toString(),
+                                  style: TextStyle(
+                                      fontFamily: "Montserrat",
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: 18),
+                                ),
+                              )),
+                        ],
+                      ),
+                      new SizedBox(
+                        height: 8,
+                      ),
+                      new Text(
+                        (calcSpireLength()),
+                        style:
+                            TextStyle(fontSize: 18, fontWeight: FontWeight.w300),
+                      ),
+                      new SizedBox(
+                        height: 8,
+                      ),
+                      new Text((calcNumOfSpires()),
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.w300)),
+                      new SizedBox(
+                        height: 8,
+                      ),
+                      new Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          new Text((calcNumOfCoils()),
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.w300)),
+                          new Text(calcRoundedNumOfCoils(),
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.w300))
+                        ],
+                      ),
+                      new SizedBox(
+                        height: 8,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          new Text(calcStep(),
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.w300)),
+                          new Text(calcStepAndDiameter(),
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.w300)),
+                        ],
+                      ),
+                      new SizedBox(
+                        height: 8,
+                      ),
+                      new Text(calcSurfaceLoad(),
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.w300)),
+                      new SizedBox(
+                        height: 8,
+                      ),
+                      new Text(calcResPrice(),
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.w300)),
+                    ],
+                  ))),
+        ));
   }
 }

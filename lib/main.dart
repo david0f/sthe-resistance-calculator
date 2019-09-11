@@ -45,6 +45,7 @@ class MyTextInputState extends State<MyTextInput> {
   double power;
   double voltage;
   double resistance;
+  int channel = 1;
   String resistanceText = "";
 
   String desiredDiameterResistance;
@@ -56,12 +57,13 @@ class MyTextInputState extends State<MyTextInput> {
   double coilLength;
   double roundedCoilLength;
 
-  double desiredWireGap;
+  double wireStep;
 
   double roundFactor;
 
   var _powerController = TextEditingController();
   var _voltageController = TextEditingController();
+  var _channelController = TextEditingController();
 
   List<DiameterResistanceModel> _diameterResitanceList = [
     DiameterResistanceModel(diameter: 0.5, resistance: 6.88),
@@ -86,6 +88,7 @@ class MyTextInputState extends State<MyTextInput> {
   void dispose() {
     _powerController.dispose();
     _voltageController.dispose();
+    _channelController.dispose();
     super.dispose();
   }
 
@@ -163,7 +166,18 @@ class MyTextInputState extends State<MyTextInput> {
   }
 
   String calcStep() {
-    return "123";
+    try{
+      channel = int.parse(_channelController.text);
+    }
+    catch(e){
+
+    }
+    if (channel != null && roundedCoilLength != null && channel > 10) {
+      wireStep = channel / roundedCoilLength;
+      return "Step = " + wireStep.toStringAsFixed(2) + " mm";
+    } else {
+      return "";
+    }
   }
 
   @override
@@ -197,17 +211,18 @@ class MyTextInputState extends State<MyTextInput> {
                       children: <Widget>[
                         new Expanded(
                             child: new Padding(
-                                padding: EdgeInsets.all(4),
+                                padding: EdgeInsets.all(2),
                                 child: TextField(
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
-                                        fontSize: 18,
+                                        fontSize: 17,
                                         fontWeight: FontWeight.w300,
                                         fontFamily: "Poppins",
                                         height: 1),
                                     decoration: new InputDecoration(
                                         labelText: "Power [W]",
-                                        contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+                                        contentPadding: EdgeInsets.symmetric(
+                                            vertical: 12, horizontal: 10),
                                         border: new OutlineInputBorder(
                                             borderRadius:
                                                 BorderRadius.circular(8)),
@@ -221,16 +236,17 @@ class MyTextInputState extends State<MyTextInput> {
                                     }))),
                         new Expanded(
                             child: new Padding(
-                                padding: EdgeInsets.all(0.0),
+                                padding: EdgeInsets.all(2),
                                 child: TextField(
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
-                                      fontSize: 18,
+                                      fontSize: 17,
                                       fontWeight: FontWeight.w300,
                                       fontFamily: "Poppins",
                                       height: 1),
                                   decoration: new InputDecoration(
-                                      contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+                                      contentPadding: EdgeInsets.symmetric(
+                                          vertical: 12, horizontal: 10),
                                       labelText: "Voltage [V]",
                                       border: new OutlineInputBorder(
                                           borderRadius:
@@ -245,13 +261,38 @@ class MyTextInputState extends State<MyTextInput> {
                                     });
                                   },
                                 ))),
+                        new Expanded(
+                            child: new Padding(
+                                padding: EdgeInsets.all(2),
+                                child: TextField(
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.w300,
+                                        fontFamily: "Poppins",
+                                        height: 1),
+                                    decoration: new InputDecoration(
+                                        labelText: "Channel [m]",
+                                        contentPadding: EdgeInsets.symmetric(
+                                            vertical: 12, horizontal: 10),
+                                        border: new OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8)),
+                                        hasFloatingPlaceholder: true),
+                                    keyboardType: TextInputType.number,
+                                    controller: _channelController,
+                                    onChanged: (String str) {
+                                      setState(() {
+                                        calcStep();
+                                      });
+                                    }))),
                       ],
                     ),
                     new SizedBox(height: 16),
                     new Row(
                       children: <Widget>[
                         new Expanded(
-                            flex: 1,
+                            flex: 4,
                             child: new DropdownButton<String>(
                               style: new TextStyle(),
                               value: desiredDiameterResistance,
@@ -263,18 +304,30 @@ class MyTextInputState extends State<MyTextInput> {
                               },
                               items: _diameterResitanceList
                                   .map((data) => DropdownMenuItem<String>(
-                                        child: Text("\u2300 Wire: " + data.diameter.toString(), style: TextStyle(fontWeight: FontWeight.w300, color: Colors.black, fontSize: 18, )),
+                                        child: Text(
+                                            "\u2300 Wire: " +
+                                                data.diameter.toString(),
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w300,
+                                              color: Colors.black,
+                                              fontSize: 18,
+                                            )),
                                         value: data.resistance.toString(),
-                                        
                                       ))
                                   .toList(),
-                              hint: new Center(child:Text("\u2300 Wire", style:TextStyle(fontWeight: FontWeight.w300, color: Colors.black, fontSize: 18,))),
+                              hint: new Center(
+                                  child: Text("\u2300 Wire",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w300,
+                                        color: Colors.black,
+                                        fontSize: 18,
+                                      ))),
                               isExpanded: true,
                               isDense: true,
                             )),
-                        new Divider(indent: 8),
+                        new Expanded(flex:3, child: new Column(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[new Divider(indent: 14, endIndent: 14, color: Colors.deepOrange)],),),
                         new Expanded(
-                          flex: 1,
+                          flex: 4,
                           child: new DropdownButton<String>(
                             value: desiredPhiDorn,
                             icon: new Icon(Icons.arrow_right),
@@ -285,11 +338,22 @@ class MyTextInputState extends State<MyTextInput> {
                             },
                             items: new List<int>.generate(10, (i) => i + 1)
                                 .map((data) => DropdownMenuItem<String>(
-                                      child: Text(data.toString(),style: TextStyle(fontWeight: FontWeight.w300, color: Colors.black, fontSize: 18, )),
+                                      child: Text("\u03C6 dorn: " + data.toString(),
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w300,
+                                            color: Colors.black,
+                                            fontSize: 18,
+                                          )),
                                       value: data.toString(),
                                     ))
                                 .toList(),
-                            hint: new Center(child:Text("\u03C6 dorn",style: TextStyle(fontWeight: FontWeight.w300, color: Colors.black, fontSize: 18,))),
+                            hint: new Center(
+                                child: Text("\u03C6 dorn",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w300,
+                                      color: Colors.black,
+                                      fontSize: 18,
+                                    ))),
                             isExpanded: true,
                             isDense: true,
                           ),
@@ -366,13 +430,17 @@ class MyTextInputState extends State<MyTextInput> {
                     new SizedBox(
                       height: 12,
                     ),
-                    new Text(calcStep(),
-                        style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.w300)),
+                    Row(
+                      children: <Widget>[
+                        new Text(calcStep(),
+                            style: TextStyle(
+                                fontSize: 24, fontWeight: FontWeight.w300)),
+                      ],
+                    ),
                     new SizedBox(
                       height: 12,
                     ),
-                    new Text(calcStep(),
+                    new Text("",
                         style: TextStyle(
                             fontSize: 24, fontWeight: FontWeight.w300)),
                   ],

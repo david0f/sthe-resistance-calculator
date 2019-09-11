@@ -32,8 +32,11 @@ class MyApp extends StatelessWidget {
 class DiameterResistanceModel {
   double diameter;
   double resistance;
+  double weight;
+  double surfaceArea;
 
-  DiameterResistanceModel({this.diameter, this.resistance});
+  DiameterResistanceModel(
+      {this.diameter, this.resistance, this.weight, this.surfaceArea});
 }
 
 class MyTextInput extends StatefulWidget {
@@ -58,6 +61,9 @@ class MyTextInputState extends State<MyTextInput> {
   double roundedCoilLength;
 
   double wireStep;
+  double wireStepAndDiameter;
+
+  double surfaceLoad;
 
   double roundFactor;
 
@@ -66,22 +72,21 @@ class MyTextInputState extends State<MyTextInput> {
   var _channelController = TextEditingController();
 
   List<DiameterResistanceModel> _diameterResitanceList = [
-    DiameterResistanceModel(diameter: 0.5, resistance: 6.88),
-    DiameterResistanceModel(diameter: 0.6, resistance: 4.77),
-    DiameterResistanceModel(diameter: 0.7, resistance: 3.51),
-    DiameterResistanceModel(diameter: 0.8, resistance: 2.69),
-    DiameterResistanceModel(diameter: 0.9, resistance: 2.12),
-    DiameterResistanceModel(diameter: 1.0, resistance: 1.72),
-    DiameterResistanceModel(diameter: 1.1, resistance: 1.42),
-    DiameterResistanceModel(diameter: 1.2, resistance: 1.19),
-    DiameterResistanceModel(diameter: 1.3, resistance: 1.02),
-    DiameterResistanceModel(diameter: 1.4, resistance: 0.877),
-    DiameterResistanceModel(diameter: 1.5, resistance: 0.764),
-    DiameterResistanceModel(diameter: 1.6, resistance: 0.671),
-    DiameterResistanceModel(diameter: 1.7, resistance: 0.595),
-    DiameterResistanceModel(diameter: 1.8, resistance: 0.531),
-    DiameterResistanceModel(diameter: 1.9, resistance: 0.430),
-    DiameterResistanceModel(diameter: 2.0, resistance: 0.340),
+    DiameterResistanceModel(diameter: 0.5, resistance: 6.88, weight: 1.42),
+    DiameterResistanceModel(diameter: 0.6, resistance: 4.77, weight: 2.05),
+    DiameterResistanceModel(diameter: 0.7, resistance: 3.51, weight: 2.79),
+    DiameterResistanceModel(diameter: 0.8, resistance: 2.69, weight: 3.64),
+    DiameterResistanceModel(diameter: 0.9, resistance: 2.12, weight: 4.6),
+    DiameterResistanceModel(diameter: 1.0, resistance: 1.72, weight: 5.7),
+    DiameterResistanceModel(diameter: 1.1, resistance: 1.42, weight: 6.9),
+    DiameterResistanceModel(diameter: 1.2, resistance: 1.19, weight: 8.2),
+    DiameterResistanceModel(diameter: 1.3, resistance: 1.02, weight: 9.6),
+    DiameterResistanceModel(diameter: 1.4, resistance: 0.877, weight: 11.2),
+    DiameterResistanceModel(diameter: 1.5, resistance: 0.764, weight: 12.8),
+    DiameterResistanceModel(diameter: 1.6, resistance: 0.671, weight: 14.6),
+    DiameterResistanceModel(diameter: 1.7, resistance: 0.595, weight: 16.5),
+    DiameterResistanceModel(diameter: 1.8, resistance: 0.531, weight: 18.4),
+    DiameterResistanceModel(diameter: 2.0, resistance: 0.430, weight: 22.8),
   ];
 
   @override
@@ -166,15 +171,45 @@ class MyTextInputState extends State<MyTextInput> {
   }
 
   String calcStep() {
-    try{
+    try {
       channel = int.parse(_channelController.text);
-    }
-    catch(e){
-
-    }
+    } catch (e) {}
     if (channel != null && roundedCoilLength != null && channel > 10) {
       wireStep = channel / roundedCoilLength;
       return "Step = " + wireStep.toStringAsFixed(2) + " mm";
+    } else {
+      return "";
+    }
+  }
+
+  String calcStepAndDiameter() {
+    if (wireStep != null) {
+      wireStepAndDiameter = wireStep - desiredDiameter;
+      return "- \u2300 = " + wireStepAndDiameter.toStringAsFixed(2) + " mm";
+    } else
+      return "";
+  }
+
+  String calcSurfaceLoad() {
+    if (power != null && roundedCoilLength != null) {
+      surfaceLoad = power / (desiredDiameter * math.pi * wireLength * 10);
+      return "S\u2097\u2092\u2090 = " +
+          surfaceLoad.toStringAsFixed(3) +
+          " W/cm\u00B2";
+    } else {
+      return "";
+    }
+  }
+
+  String calcResPrice() {
+    double price = 110;
+    price /= 1000; //110 lei net
+    if (desiredDiameter != null && wireLength != null) {
+      var weight = _diameterResitanceList
+          .firstWhere((data) => data.diameter == desiredDiameter)
+          .weight;
+      var finalPrice = (wireLength * weight * price) * 1.19 * 2;
+      return "Price = " + finalPrice.toStringAsFixed(2) + " Lei";
     } else {
       return "";
     }
@@ -196,7 +231,7 @@ class MyTextInputState extends State<MyTextInput> {
                         child: new Center(
                       child: Image(
                         image: new AssetImage('assets/heating_element.png'),
-                        width: 180,
+                        width: 120,
                       ),
                     )),
                     new Text(
@@ -204,7 +239,7 @@ class MyTextInputState extends State<MyTextInput> {
                       style: TextStyle(
                           fontFamily: "Montserrat",
                           fontWeight: FontWeight.w300,
-                          fontSize: 16),
+                          fontSize: 14),
                     ),
                     new SizedBox(height: 16),
                     new Row(
@@ -215,7 +250,7 @@ class MyTextInputState extends State<MyTextInput> {
                                 child: TextField(
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
-                                        fontSize: 17,
+                                        fontSize: 14,
                                         fontWeight: FontWeight.w300,
                                         fontFamily: "Poppins",
                                         height: 1),
@@ -240,7 +275,7 @@ class MyTextInputState extends State<MyTextInput> {
                                 child: TextField(
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
-                                      fontSize: 17,
+                                      fontSize: 14,
                                       fontWeight: FontWeight.w300,
                                       fontFamily: "Poppins",
                                       height: 1),
@@ -267,12 +302,12 @@ class MyTextInputState extends State<MyTextInput> {
                                 child: TextField(
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
-                                        fontSize: 17,
+                                        fontSize: 14,
                                         fontWeight: FontWeight.w300,
                                         fontFamily: "Poppins",
                                         height: 1),
                                     decoration: new InputDecoration(
-                                        labelText: "Channel [m]",
+                                        labelText: "Channel [mm]",
                                         contentPadding: EdgeInsets.symmetric(
                                             vertical: 12, horizontal: 10),
                                         border: new OutlineInputBorder(
@@ -306,11 +341,12 @@ class MyTextInputState extends State<MyTextInput> {
                                   .map((data) => DropdownMenuItem<String>(
                                         child: Text(
                                             "\u2300 Wire: " +
-                                                data.diameter.toString(),
+                                                data.diameter.toString() +
+                                                " mm",
                                             style: TextStyle(
                                               fontWeight: FontWeight.w300,
                                               color: Colors.black,
-                                              fontSize: 18,
+                                              fontSize: 14,
                                             )),
                                         value: data.resistance.toString(),
                                       ))
@@ -320,12 +356,23 @@ class MyTextInputState extends State<MyTextInput> {
                                       style: TextStyle(
                                         fontWeight: FontWeight.w300,
                                         color: Colors.black,
-                                        fontSize: 18,
+                                        fontSize: 14,
                                       ))),
                               isExpanded: true,
                               isDense: true,
                             )),
-                        new Expanded(flex:3, child: new Column(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[new Divider(indent: 14, endIndent: 14, color: Colors.deepOrange)],),),
+                        new Expanded(
+                          flex: 1,
+                          child: new Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 6),
+                              child: new SizedBox(
+                                  width: 100,
+                                  height: 0.3,
+                                  child: DecoratedBox(
+                                    decoration:
+                                        BoxDecoration(color: Colors.deepOrange),
+                                  ))),
+                        ),
                         new Expanded(
                           flex: 4,
                           child: new DropdownButton<String>(
@@ -338,11 +385,14 @@ class MyTextInputState extends State<MyTextInput> {
                             },
                             items: new List<int>.generate(10, (i) => i + 1)
                                 .map((data) => DropdownMenuItem<String>(
-                                      child: Text("\u03C6 dorn: " + data.toString(),
+                                      child: Text(
+                                          "\u03C6 dorn: " +
+                                              data.toString() +
+                                              " mm",
                                           style: TextStyle(
                                             fontWeight: FontWeight.w300,
                                             color: Colors.black,
-                                            fontSize: 18,
+                                            fontSize: 14,
                                           )),
                                       value: data.toString(),
                                     ))
@@ -352,7 +402,7 @@ class MyTextInputState extends State<MyTextInput> {
                                     style: TextStyle(
                                       fontWeight: FontWeight.w300,
                                       color: Colors.black,
-                                      fontSize: 18,
+                                      fontSize: 14,
                                     ))),
                             isExpanded: true,
                             isDense: true,
@@ -376,13 +426,13 @@ class MyTextInputState extends State<MyTextInput> {
                                 style: TextStyle(
                                     fontFamily: "Montserrat",
                                     fontWeight: FontWeight.w300,
-                                    fontSize: 24),
+                                    fontSize: 12),
                               ),
                             )),
                       ],
                     ),
                     new SizedBox(
-                      height: 12,
+                      height: 8,
                     ),
                     new Row(
                       children: <Widget>[
@@ -394,55 +444,65 @@ class MyTextInputState extends State<MyTextInput> {
                                 style: TextStyle(
                                     fontFamily: "Montserrat",
                                     fontWeight: FontWeight.w300,
-                                    fontSize: 24),
+                                    fontSize: 12),
                               ),
                             )),
                       ],
                     ),
                     new SizedBox(
-                      height: 12,
+                      height: 8,
                     ),
                     new Text(
                       (calcSpireLength()),
                       style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.w300),
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.w300),
                     ),
                     new SizedBox(
-                      height: 12,
+                      height: 8,
                     ),
                     new Text((calcNumOfSpires()),
                         style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.w300)),
+                            fontSize: 12, fontWeight: FontWeight.w300)),
                     new SizedBox(
-                      height: 12,
+                      height: 8,
                     ),
                     new Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         new Text((calcNumOfCoils()),
                             style: TextStyle(
-                                fontSize: 24, fontWeight: FontWeight.w300)),
+                                fontSize: 12, fontWeight: FontWeight.w300)),
                         new Text(calcRoundedNumOfCoils(),
                             style: TextStyle(
-                                fontSize: 24, fontWeight: FontWeight.w300))
+                                fontSize: 12, fontWeight: FontWeight.w300))
                       ],
                     ),
                     new SizedBox(
-                      height: 12,
+                      height: 8,
                     ),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         new Text(calcStep(),
                             style: TextStyle(
-                                fontSize: 24, fontWeight: FontWeight.w300)),
+                                fontSize: 12, fontWeight: FontWeight.w300)),
+                        new Text(calcStepAndDiameter(),
+                            style: TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.w300)),
                       ],
                     ),
                     new SizedBox(
-                      height: 12,
+                      height: 8,
                     ),
-                    new Text("123",
+                    new Text(calcSurfaceLoad(),
                         style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.w300)),
+                            fontSize: 12, fontWeight: FontWeight.w300)),
+                    new SizedBox(
+                      height: 8,
+                    ),
+                    new Text(calcResPrice(),
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.w300)),
                   ],
                 ))));
   }

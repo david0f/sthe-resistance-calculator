@@ -440,7 +440,7 @@ class MyTextInputState extends State<MyTextInput> {
                     new SizedBox(
                       height: 12,
                     ),
-                    new Text("",
+                    new Text("123",
                         style: TextStyle(
                             fontSize: 24, fontWeight: FontWeight.w300)),
                   ],

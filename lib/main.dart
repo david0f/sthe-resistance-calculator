@@ -4,6 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'dart:math' as math;
 
+import 'package:kanthal_formula/saveAlertDialog.dart';
+import 'package:kanthal_formula/resistanceModel.dart';
+
+
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -27,16 +32,6 @@ class MyApp extends StatelessWidget {
       home: new MyTextInput(),
     );
   }
-}
-
-class DiameterResistanceModel {
-  double diameter;
-  double resistance;
-  double weight;
-  double surfaceArea;
-
-  DiameterResistanceModel(
-      {this.diameter, this.resistance, this.weight, this.surfaceArea});
 }
 
 class MyTextInput extends StatefulWidget {
@@ -88,6 +83,12 @@ class MyTextInputState extends State<MyTextInput> {
     DiameterResistanceModel(diameter: 1.8, resistance: 0.531, weight: 18.4),
     DiameterResistanceModel(diameter: 2.0, resistance: 0.430, weight: 22.8),
   ];
+
+
+  @override
+  void initState(){
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -220,9 +221,16 @@ class MyTextInputState extends State<MyTextInput> {
     return new Scaffold(
         appBar: new AppBar(
             title: new Text("Resistance Calculator"),
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.share),
+                onPressed: () => print("save pressed"),
+              )
+            ],
             backgroundColor: Colors.deepOrange),
+        floatingActionButton: SaveAlertDialog(),
         body: SingleChildScrollView(
-                  child: new Container(
+          child: new Container(
               child: new Padding(
                   padding: EdgeInsets.all(24.0),
                   child: new Column(
@@ -370,8 +378,8 @@ class MyTextInputState extends State<MyTextInput> {
                                     width: 100,
                                     height: 0.3,
                                     child: DecoratedBox(
-                                      decoration:
-                                          BoxDecoration(color: Colors.deepOrange),
+                                      decoration: BoxDecoration(
+                                          color: Colors.deepOrange),
                                     ))),
                           ),
                           new Expanded(
@@ -455,8 +463,8 @@ class MyTextInputState extends State<MyTextInput> {
                       ),
                       new Text(
                         (calcSpireLength()),
-                        style:
-                            TextStyle(fontSize: 18, fontWeight: FontWeight.w300),
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w300),
                       ),
                       new SizedBox(
                         height: 8,
